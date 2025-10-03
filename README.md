@@ -16,6 +16,8 @@ To get up and running with the app on your dev environment you'll need to run bo
 cd
 python manage.py makemigrations
 python manage.py migrate
+# Start the backend server
+python manage.py runserver
 ```
 
 - Frontend
@@ -23,5 +25,6 @@ python manage.py migrate
 # CD into the frontend directory and install the dependencies
 cd frontend
 npm install # you could also using pnpm, yarn or some other package manager to install dependences
+# Start the frontend server
 npm start
 ```
