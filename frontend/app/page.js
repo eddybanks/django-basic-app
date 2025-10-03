@@ -1,96 +1,108 @@
-"use client";
-
-import { useState, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import SearchBar from "../components/SearchBar";
+import FilterBar from "../components/FilterBar";
 import ProductList from "../components/ProductList";
 
-export default function Home() {
-  const [products, setProducts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
+const BASE_API_URL = "http://127.0.0.1:8000/api/products/";
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
+// Server-side function to fetch data
+async function fetchProducts(searchParams) {
+  try {
+    // Build API query parameters
+    const params = new URLSearchParams();
+    const search = searchParams.search || "";
+    const category = searchParams.category || "";
+    const tag = searchParams.tag || "";
 
-  const BASE_API_URL = "http://127.0.0.1:8000/api/products/";
+    if (search.trim()) params.set("search", search.trim());
+    if (category) params.set("category", category);
+    if (tag) params.set("tag", tag);
 
-  const fetchProducts = useCallback(
-    async (searchTerm = "") => {
-      try {
-        setLoading(true);
+    const url = `${BASE_API_URL}${
+      params.toString() ? "?" + params.toString() : ""
+    }`;
 
-        const url = searchTerm.trim()
-          ? `${BASE_API_URL}?search=${encodeURIComponent(searchTerm.trim())}`
-          : BASE_API_URL;
+    const response = await fetch(url, {
+      cache: "no-store", // Ensure fresh data on each request
+    });
 
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const productList = data.results || data;
-        setProducts(productList);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [BASE_API_URL]
-  );
-
-  const updateURL = (query) => {
-    const params = new URLSearchParams(searchParams);
-    if (query.trim()) {
-      params.set("search", query.trim());
-    } else {
-      params.delete("search");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const newUrl = params.toString() ? `/?${params.toString()}` : "/";
-    router.push(newUrl, { shallow: true });
-  };
+    const data = await response.json();
+    return data.results || data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return [];
+  }
+}
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    updateURL(query);
-    fetchProducts(query);
-  };
+// Server-side function to fetch filter options
+async function fetchFilterOptions() {
+  try {
+    const response = await fetch(BASE_API_URL, {
+      cache: "no-store",
+    });
 
-  // Initialize from URL params and fetch initial data
-  useEffect(() => {
-    const urlSearch = searchParams.get("search") || "";
-    setSearchQuery(urlSearch);
-    fetchProducts(urlSearch);
-  }, [searchParams, fetchProducts]);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const productList = data.results || data;
+
+    // Extract available categories and tags for filters
+    const uniqueCategories = [
+      ...new Set(
+        productList
+          .map((p) => p.category)
+          .filter(Boolean)
+          .map((cat) => (typeof cat === "object" ? cat.name : cat))
+      ),
+    ];
+
+    const uniqueTags = [
+      ...new Set(
+        productList.flatMap((p) => p.tags || []).map((tag) => tag.name)
+      ),
+    ];
+
+    return { categories: uniqueCategories, tags: uniqueTags };
+  } catch (error) {
+    console.error("Error fetching filter options:", error);
+    return { categories: [], tags: [] };
+  }
+}
+
+export default async function Home({ searchParams }) {
+  // Fetch data on server-side
+  const products = await fetchProducts(searchParams);
+  const { categories, tags } = await fetchFilterOptions();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+      <header className="border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <h1 className="text-3xl font-medium text-gray-900">
             Product Catalog
           </h1>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <SearchBar
-          searchQuery={searchQuery}
-          onSearchChange={handleSearch}
-          placeholder="Search products by name, description, category, or tags..."
-        />
-        <ProductList
-          products={products}
-          loading={loading}
-          searchQuery={searchQuery}
-        />
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Client-side components for interactivity */}
+        <SearchBar placeholder="Search products..." />
+        <FilterBar categories={categories} tags={tags} />
+
+        {/* Results count */}
+        <div className="mb-4 text-sm text-gray-600">
+          {products.length} product{products.length !== 1 ? "s" : ""} found
+        </div>
+
+        {/* Products */}
+        <ProductList products={products} />
       </main>
     </div>
   );

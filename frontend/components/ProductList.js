@@ -1,14 +1,4 @@
-export default function ProductList({ products, loading, searchQuery }) {
-  if (loading) {
-    return (
-      <div className="text-center py-12">
-        <div className="bg-white rounded-lg border border-gray-200 p-8 max-w-md mx-auto">
-          <p className="text-gray-500">Loading products...</p>
-        </div>
-      </div>
-    );
-  }
-
+export default function ProductList({ products, searchQuery }) {
   if (!products || products.length === 0) {
     return (
       <div className="text-center py-12">
@@ -65,7 +55,7 @@ export default function ProductList({ products, loading, searchQuery }) {
                         key={index}
                         className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
                       >
-                        {typeof tag === "object" ? tag.name : tag}
+                        {tag.name}
                       </span>
                     ))}
                   </div>
