@@ -1,5 +1,11 @@
 from django.db import models
 
+# I chose the following models and relationships
+# Category - belongs to a product
+# Product - belongs to a category, has many tags
+# Tag - can belong to many products
+# Optionally - the product->category relationship could be a many-to-many relationship as well,
+# I just chose a many-to-one for simplicity
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField()
