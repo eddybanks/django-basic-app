@@ -8,7 +8,8 @@ router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='product')
 
 # Admin route provided for admin level data management
+# Also api/ root route for api endpoints - only products in this case
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path("admin/", admin.site.urls),
+    path("api/", include(router.urls)),
 ]

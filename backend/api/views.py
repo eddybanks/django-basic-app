@@ -1,19 +1,25 @@
 from rest_framework import viewsets
-from rest_framework import filters
+from django.db.models import Q
 from .models import Product
 from .serializers import ProductSerializer
 
+# Could use rest_framework filters or django-filters for better filtering
+# but decided to try a straightforward approach for now since I ran into some issues
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends = [filters.SearchFilter] # Basic filtering for this example
 
-    # 1. Search by 'description' (as requested) and 'name'
-    search_fields = ['name', 'description']
-
-    # 2. Filter by 'category' (by category name)
     def get_queryset(self):
         queryset = self.queryset
+
+        # Handle search functionality - search by name and description
+        search_query = self.request.query_params.get("search")
+        if search_query:
+            # Search in both name and description fields
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | Q(description__icontains=search_query)
+            )
+
         # Check for a 'category' query parameter
         category_name = self.request.query_params.get('category')
         if category_name:

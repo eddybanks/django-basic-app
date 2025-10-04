@@ -37,6 +37,11 @@ python manage.py runserver
 - Populate Data via Admin interface
   - Create a superuser to access the admin interface
     ```bash
+    # Start the virtual env or skip if already in one
+    python -m venv env
+    source env/bin/activate
+    # CD into backend and create superuser
+    cd backend
     python manage.py createsuperuser
     ```
   - Follow the prompts to create the superuser
@@ -44,12 +49,14 @@ python manage.py runserver
   - Login with the superuser credentials you just created
   - Add Categories, Tags and Products via the admin interface
 
+_P.S. Alternatively, data could be populated using the shell `python manage.py shell` if you're familiar with the shell_
 
 - Frontend
 ```bash
 # CD into the frontend directory and install the dependencies
 cd frontend
-npm install # you could also using pnpm, yarn or some other package manager to install dependences
+# you could also using pnpm, yarn or some other package manager to install dependences
+npm install
 # Start the frontend server
 npm run dev
 ```
@@ -59,5 +66,6 @@ npm run dev
   - I considered pytests but skipped out on it since this is supposed to be a quick test
   - For simplicity, I chose a singular file in each case for the models, serializers, urls, views, etc... instead of breaking them out or modularizing into individual files per model, serializer, etc.. or breaking into multiple apps.
   - I also chose to skip out on pagination for the product list endpoint or providing multiple Viewsets/URL endpoints for the models
+  - `Django-filters` could be installed for better filtering instead of depending on a queryset method for filtering within the products viewset
 - Frontend
   - Again, testing could help improve things
