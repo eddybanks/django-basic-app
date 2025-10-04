@@ -79,3 +79,14 @@ _P.S. Alternatively, data could be populated using the shell `python manage.py s
   - `Django-filters` could be installed for better filtering instead of depending on a queryset method for filtering within the products viewset
 - Frontend
   - Again, testing could help improve things
+
+## Expected View
+
+### Backend - http://127.0.0.1:8000/api/products/
+<img width="1364" height="907" alt="Screenshot 2025-10-04 at 1 44 28 AM" src="https://github.com/user-attachments/assets/e61fb132-84ad-4ff3-ab3f-c5748fa70fe4" />
+
+
+
+### Frontend - http://localhost:3000/
+
+https://github.com/user-attachments/assets/6ae74dab-8660-410c-b0a0-057c71d1d6ff
