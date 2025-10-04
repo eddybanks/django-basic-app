@@ -75,8 +75,11 @@ async function fetchFilterOptions() {
 }
 
 export default async function Home({ searchParams }) {
+  // Await searchParams before using its properties (Next.js 15 requirement)
+  const resolvedSearchParams = await searchParams;
+
   // Fetch data on server-side
-  const products = await fetchProducts(searchParams);
+  const products = await fetchProducts(resolvedSearchParams);
   const { categories, tags } = await fetchFilterOptions();
 
   return (
